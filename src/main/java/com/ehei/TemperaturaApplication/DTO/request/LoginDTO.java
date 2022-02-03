@@ -1,4 +1,4 @@
-package com.ehei.TemperaturaApplication.DTO;
+package com.ehei.TemperaturaApplication.DTO.request;
 
 public class LoginDTO {
 	private String username;

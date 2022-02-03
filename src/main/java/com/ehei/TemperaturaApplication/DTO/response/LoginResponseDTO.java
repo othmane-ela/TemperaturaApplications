@@ -1,4 +1,4 @@
-package com.ehei.TemperaturaApplication.DTO;
+package com.ehei.TemperaturaApplication.DTO.response;
 
 public class LoginResponseDTO {
 	private String token;
