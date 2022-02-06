@@ -6,6 +6,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +59,7 @@ public class AuthenticationController {
 	private PasswordEncoder passwordEncoder;
 
 	@PostMapping("/auth/signin")
-	public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) throws InvalidKeySpecException, NoSuchAlgorithmException {
+	public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO,HttpServletResponse res) throws InvalidKeySpecException, NoSuchAlgorithmException {
 
 		final Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
 				loginDTO.getUsername(), loginDTO.getPassword()));
@@ -68,7 +71,13 @@ public class AuthenticationController {
 		
 		LoginResponseDTO response=new LoginResponseDTO();
 		response.setToken(jwtToken);
-	
+		
+	     final Cookie cookie = new Cookie("auth", jwtToken);
+			cookie.setHttpOnly(true);
+			cookie.setMaxAge(Integer.MAX_VALUE);
+			cookie.setPath("/");
+			res.addCookie(cookie);
+		
 		return ResponseEntity.ok(response);
 	}
 	

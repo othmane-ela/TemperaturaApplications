@@ -21,7 +21,8 @@ export default function Login() {
      const [password,setPassword] = useState('');
     const [redirect,setRedirect] = useState(false);
 
-
+   const response  = null;
+   
      const submit = async (e:SyntheticEvent) =>{
           e.preventDefault();
           const response = await fetch('http://localhost:8080/api/v1/auth/signin',{  method:'POST',  
@@ -31,18 +32,20 @@ export default function Login() {
           password
     })
     });
-    const token = await response.json();
-    console.log(token);
-    setRedirect(true);
-
-    }
-
-    
-  if(redirect)
+  if(response.status === 200)
   {
-      return  <Navigate to="/dashboard" />;
+    const responseData = await response.json();
+    localStorage.setItem("key",responseData.token)
+    setRedirect(true);
+    console.log(redirect)
   }
+}
 
+if(redirect=== true)
+{
+      return  <Navigate to="/dashboard" />;
+}
+  
   return (
     <>
     <Navbar/>
@@ -98,4 +101,5 @@ export default function Login() {
     </Flex>
     </>
   );
+ 
 }

@@ -40,8 +40,6 @@ const submit = async (e:SyntheticEvent) =>{
     console.log(response);
     setRedirect(true)
 }
-
-
   if(redirect)
   {
       return  <Navigate to="/login" />;

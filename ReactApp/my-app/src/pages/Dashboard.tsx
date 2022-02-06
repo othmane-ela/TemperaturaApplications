@@ -32,45 +32,71 @@ import {
   FiChevronDown,
 } from 'react-icons/fi';
 import { IconType } from 'react-icons';
-import { ReactText,useEffect } from 'react';
-
+import { ReactText,useEffect,useState } from 'react';
+import {Navigate} from 'react-router-dom'
+import {BrowserRouter,Routes,Route} from 'react-router-dom';
+import Environment from './Environment'
+import Nodes from './Nodes'
+import { Link as RouterLink } from "react-router-dom";
+import EnvironmentDetails from './EnvironmentDetails';
 
 interface LinkItemProps {
   name: string;
   icon: IconType;
+  path:string;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: 'Environements', icon: FiHome },
-  { name: 'Nodes', icon: FiTrendingUp },
-  { name: 'Settings', icon: FiSettings },
+  { name: 'Environements',path:'/dashboard', icon: FiHome },
+  { name: 'Nodes',path:'/dashboard/nodes', icon: FiTrendingUp },
+  { name: 'Settings',path:'/dashboard/settings', icon: FiSettings },
 ];
 
 export default function Dashboard() {
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const [user,setUser] = useState(null);
+  const [error,setError] = useState(null);
+  const [connected,setConnected] = useState(false);
 
     useEffect(() => {
-        (
-          async () => {
-            fetch('http://localhost:8080/api/v1/auth/user',{
-              headers:{'Content-Type':'application/json'},
-              credentials:'include',
-          });
-          } 
-        )();
-    });
+      fetch('http://localhost:8080/api/v1/auth/user',{
+        headers:{
+          'Content-Type':'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('key')
+        }
+      })
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          throw new Error('Something went wrong');
+        }
+      })
+      .then(data=> setUser(data))
+      .catch(error => setError(error))
+      
+    },[connected])
 
 
+      const signOut = (childData) =>{
+        localStorage.removeItem('key');
+        setConnected(childData);
+  }
 
-
-
+    if(error)
+    {
+      return  <Navigate to="/login" />;
+    }
+   
+    
+  
 
   return (
-    <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
+    <Box minH="100vh" bg={'gray.100'}>
       <SidebarContent
         onClose={() => onClose}
         display={{ base: 'none', md: 'block' }}
       />
+     
       <Drawer
         autoFocus={false}
         isOpen={isOpen}
@@ -84,9 +110,13 @@ export default function Dashboard() {
         </DrawerContent>
       </Drawer>
       {/* mobilenav */}
-      <MobileNav onOpen={onOpen} />
+      <MobileNav onOpen={onOpen} user={user} signOut={signOut} />
       <Box ml={{ base: 0, md: 60 }} p="4">
-        {/*children*/}
+          <Routes>
+             <Route path="/" element={<Environment />} />
+             <Route path="/nodes" element={<Nodes />} />
+             <Route  path="/environment/:envId" element={<EnvironmentDetails />} />
+          </Routes>
       </Box>
     </Box>
   );
@@ -100,9 +130,9 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
   return (
     <Box
       transition="3s ease"
-      bg={useColorModeValue('white', 'gray.900')}
+      bg={'white'}
       borderRight="1px"
-      borderRightColor={useColorModeValue('gray.200', 'gray.700')}
+      borderRightColor={'gray.200'}
       w={{ base: 'full', md: 60 }}
       pos="fixed"
       h="full"
@@ -114,7 +144,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon}>
+        <NavItem key={link.name} icon={link.icon} path={link.path}>
           {link.name}
         </NavItem>
       ))}
@@ -125,10 +155,14 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
 interface NavItemProps extends FlexProps {
   icon: IconType;
   children: ReactText;
+  path:string;
 }
-const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
+
+
+const NavItem = ({ icon,path, children, ...rest }: NavItemProps) => {
   return (
-    <Link href="#" style={{ textDecoration: 'none' }} _focus={{ boxShadow: 'none' }}>
+
+    <RouterLink to={path}>
       <Flex
         align="center"
         p="4"
@@ -153,23 +187,43 @@ const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
         )}
         {children}
       </Flex>
-    </Link>
+      </RouterLink>
   );
 };
 
 interface MobileProps extends FlexProps {
   onOpen: () => void;
+  user:User;
+  signOut:(x:boolean) => void;
 }
-const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
-  return (
-    <Flex
+
+interface User {
+  firstName: string,
+  lastName: string,
+  userName: string,
+  roles: any[]
+}
+
+
+const MobileNav = ({ onOpen,user,signOut, ...rest }: MobileProps) => {
+
+
+  const singOutHandle = (event) => {
+    signOut(true);
+    event.preventDefault();
+}
+
+
+  return (   
+  
+   <Flex
       ml={{ base: 0, md: 60 }}
       px={{ base: 4, md: 4 }}
       height="20"
       alignItems="center"
-      bg={useColorModeValue('white', 'gray.900')}
+      bg={'white'}
       borderBottomWidth="1px"
-      borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
+      borderBottomColor={'gray.200'}
       justifyContent={{ base: 'space-between', md: 'flex-end' }}
       {...rest}>
       <IconButton
@@ -185,7 +239,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         fontSize="2xl"
         fontFamily="monospace"
         fontWeight="bold">
-        Logo
+        Temperatura
       </Text>
 
       <HStack spacing={{ base: '0', md: '6' }}>
@@ -205,7 +259,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 <Avatar
                   size={'sm'}
                   src={
-                    'https://images.unsplash.com/photo-1619946794135-5bc917a27793?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9'
+                    'https://www.iop.org/sites/default/files/styles/original_optimised/public/2021-12/jose-ESA-001.jpg?itok=_KwXMi8I'
                   }
                 />
                 <VStack
@@ -213,9 +267,11 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   alignItems="flex-start"
                   spacing="1px"
                   ml="2">
-                  <Text fontSize="sm">Justina Clark</Text>
+                  <Text fontSize="sm">
+                    {user?.firstName}
+                  </Text>
                   <Text fontSize="xs" color="gray.600">
-                    Admin
+                        {user?.roles?.map((role) => <span key={role.id}>{role.roleCode} - </span>)}
                   </Text>
                 </VStack>
                 <Box display={{ base: 'none', md: 'flex' }}>
@@ -224,17 +280,18 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               </HStack>
             </MenuButton>
             <MenuList
-              bg={useColorModeValue('white', 'gray.900')}
-              borderColor={useColorModeValue('gray.200', 'gray.700')}>
+              bg={'white'}
+              borderColor={'gray.200'}>
               <MenuItem>Profile</MenuItem>
               <MenuItem>Settings</MenuItem>
-              <MenuItem>Billing</MenuItem>
               <MenuDivider />
-              <MenuItem>Sign out</MenuItem>
+              <MenuItem onClick={singOutHandle}>Sign out</MenuItem>
             </MenuList>
           </Menu>
         </Flex>
       </HStack>
     </Flex>
+  
+ 
   );
 };
