@@ -44,7 +44,6 @@ function Environment() {
             console.log(env)
       }
      
-
     return (
         <div>
                 <NewEnvModal handleSubmit={addEnvironement}/>

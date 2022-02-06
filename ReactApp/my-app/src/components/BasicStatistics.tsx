@@ -10,7 +10,7 @@ import {
   } from '@chakra-ui/react';
   import { ReactNode } from 'react';
   import { GoLocation } from 'react-icons/go';
-  import { Link as RouterLink } from "react-router-dom";
+  import { Link as RouterLink ,useNavigate} from "react-router-dom";
   
   interface StatsCardProps {
     id:number,
@@ -20,11 +20,24 @@ import {
     maxTemperature:number
     minTemperature:number
     icon: ReactNode;
+    nodes:any[]
   }
   function StatsCard(props: StatsCardProps) {
-    const { id,name, maxHumidity,minHumidity,maxTemperature,minTemperature, icon } = props;
-    return (
-      <RouterLink to={`/dashboard/environment/${id}`}>
+   // const { id,name, maxHumidity,minHumidity,maxTemperature,minTemperature, icon } = props;
+    const data:StatsCardProps = props;
+    const navigate = useNavigate();
+    const to = `/dashboard/environment/${data.id}`;
+    const toEnvironmentDetails=()=>{
+      navigate(to,{state:{name:data.name, 
+                        maxHumidity:data.maxHumidity,
+                       minHumidity:data.minHumidity,
+                       maxTemperature: data.maxTemperature,
+                       minTemperature:data.minTemperature,
+                       nodes:data.nodes
+                       ,}});
+      }
+     return (
+      <a onClick={()=>{toEnvironmentDetails()}}>
       <Stat
         px={{ base: 2, md: 4 }}
         py={'5'}
@@ -35,31 +48,31 @@ import {
         <Flex justifyContent={'space-between'}>
           <Box pl={{ base: 2, md: 4 }}>
             <StatLabel  isTruncated  fontWeight={'bold'}>
-              {name}
+              {data.name}
             </StatLabel>
             <StatNumber fontSize={'1xl'} fontWeight={'medium'} color={'red.500'}>
-               min Temperature  : {minTemperature} c° 
+               min Temperature  : {data.minTemperature} c° 
             </StatNumber>
             <StatNumber fontSize={'1xl'} fontWeight={'medium'} color={'blue.500'}>
-              max Temperature  : {maxTemperature} c° 
+              max Temperature  : {data.maxTemperature} c° 
             </StatNumber>
 
             <StatNumber fontSize={'1xl'} fontWeight={'medium'} color={'red.400'}>
-               min Humidity  : {minHumidity} % 
+               min Humidity  : {data.minHumidity} % 
             </StatNumber>
             <StatNumber fontSize={'1xl'} fontWeight={'medium'} color={'blue.400'}>
-              max Humidity  : {maxHumidity} % 
+              max Humidity  : {data.maxHumidity} % 
             </StatNumber>
           </Box>
           <Box
             my={'auto'}
             color={useColorModeValue('gray.800', 'gray.200')}
             alignContent={'center'}>
-            {icon}
+            {data.icon}
           </Box>
         </Flex>
       </Stat>
-      </RouterLink>
+      </a>
     );
   }
   
@@ -72,13 +85,15 @@ import {
       
         {data.map(env => 
             <StatsCard
-             id={env.id}
+            
               key={env.id}
+              id={env.id}
               name={env.name}
               maxHumidity ={env.maxHumidity}
               minHumidity ={env.minHumidity}
               maxTemperature={env.maxTemperature}
               minTemperature={env.minTemperature}
+              nodes={env.nodes}
               icon={<GoLocation size={'3em'} />}
           />
 
