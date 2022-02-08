@@ -8,7 +8,7 @@
 #define DHTPIN 4     // Digital pin connected to the DHT sensor
 const char* ssid     = "LINK";
 const char* password = "#CICADA3#";
-const char* serverName = "http://192.168.1.100:8080/api/v1/node/data";
+const char* serverName = "http://192.168.1.103:8080/api/v1/node/data";
 String node = "1";
 
 
