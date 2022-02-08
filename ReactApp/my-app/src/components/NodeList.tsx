@@ -1,4 +1,4 @@
-import {  useState,useEffect,SyntheticEvent} from 'react';
+import {  useState,SyntheticEvent} from 'react';
 import {
   Box,
   Heading,
@@ -9,8 +9,11 @@ import {
   Avatar,useDisclosure,Button,FormControl,FormLabel,Input,
   useColorModeValue,Modal,ModalOverlay,ModalContent,ModalHeader,ModalFooter,ModalCloseButton,ModalBody
 } from '@chakra-ui/react';
+import ChartTmp from './ChartTmp'
 
 export default function NodeList({env}) {
+
+      const [nodes,setNodes] = useState(env.nodes);
 
     return (
     <Box bg={useColorModeValue('gray.100', 'gray.700')}>
@@ -20,11 +23,11 @@ export default function NodeList({env}) {
           <Text>We have been working with clients around the world</Text>
         </Stack>
         <Stack spacing={0} align={'left'}>
+         {JSON.stringify(env)} 
           <AddNode envId={env.id}/>
         </Stack>
         <Stack  spacing={{ base: 10, md: 4, lg: 10 }}>
-            {JSON.stringify(env.nodes)}
-           { env.nodes?.map(node => { <NodeComponenet node={node}/>})  }
+           {nodes.map(node => <NodeComponenet key={node.id} node={node}/>)  }
         </Stack>
       </Container>
     </Box>
@@ -42,6 +45,7 @@ function NodeComponenet({node}){
        </Badge>
      </Text>
      <Text fontSize='sm'>DHT 11</Text>
+     <ChartTmp/>
    </Box>)
 }
 
@@ -69,6 +73,8 @@ function AddNode({envId}) {
         }
       })
       .catch(error => console.log(error))
+
+      onClose()
   
     }
 

@@ -1,6 +1,5 @@
 import {
     Box,
-    chakra,
     Flex,
     SimpleGrid,
     Stat,
@@ -10,7 +9,7 @@ import {
   } from '@chakra-ui/react';
   import { ReactNode } from 'react';
   import { GoLocation } from 'react-icons/go';
-  import { Link as RouterLink ,useNavigate} from "react-router-dom";
+  import { useNavigate} from "react-router-dom";
   
   interface StatsCardProps {
     id:number,
@@ -28,7 +27,9 @@ import {
     const navigate = useNavigate();
     const to = `/dashboard/environment/${data.id}`;
     const toEnvironmentDetails=()=>{
-      navigate(to,{state:{name:data.name, 
+      navigate(to,{state:{
+                        id:data.id,
+                        name:data.name, 
                         maxHumidity:data.maxHumidity,
                        minHumidity:data.minHumidity,
                        maxTemperature: data.maxTemperature,
@@ -37,7 +38,7 @@ import {
                        ,}});
       }
      return (
-      <a onClick={()=>{toEnvironmentDetails()}}>
+      <button onClick={()=>{toEnvironmentDetails()}}>
       <Stat
         px={{ base: 2, md: 4 }}
         py={'5'}
@@ -72,7 +73,7 @@ import {
           </Box>
         </Flex>
       </Stat>
-      </a>
+      </button>
     );
   }
   
